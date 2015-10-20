@@ -1,0 +1,14 @@
+Very simple smoke test.
+
+This should yield the same output as test_output.tsv.  Depending on the python
+implementation you may need to sort output to properly compare.
+
+    keggannot_genes2ko kegg test100.blast7.tsv.gz
+
+This should yield the same output as test_output-m.tsv.  Depending on the
+python implementation you may need to sort output to properly compare.
+
+    keggannot_genes2ko -m kegg test100.blast7.tsv.gz
+
+These blast results are based on a blastp (1e-5 cutoff) of test100.fasta.gz
+against the KEGG peptide database as of 2013-06-24.

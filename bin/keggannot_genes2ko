@@ -1,0 +1,65 @@
+#!/usr/bin/env python2.7
+import os
+import sys
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
+from keggannot.annot import KEGGAnnotator
+from keggannot import __version__
+import keggannot
+import logging
+import gzip
+
+if __name__ == "__main__":
+    p = ArgumentParser(description="Annotate proteins with KEGG BLAST results",
+                       formatter_class=ArgumentDefaultsHelpFormatter,
+                       epilog="""The following files should be available in the 
+                       KEGG data directory:
+                       genes/ko/ko_genes.list
+                       genes/ko/ko_module.list
+                       genes/ko/ko_pathway.list
+                       genes/ko/ko_enzyme.list
+                       genes/ko/ko
+                       module/module
+                       pathway/pathway""")
+    p.add_argument("-v", "--version", action="store_true", default=False,
+                   help="Print version to STDOUT")
+    p.add_argument("-V", "--verbose", action="store_true", default=False,
+                   help="Verbose logging output")
+    p.add_argument("-m", "--module", action="store_true", default=False,
+                   help="Only use hits with a defined module")
+    p.add_argument("kegg_dir", nargs="?", help="KEGG data directory")
+    p.add_argument("blast_file", nargs="?", help="Tabular blast results file")
+    args = p.parse_args()
+
+    if args.version:
+        print "keggannot_genes2ko %s" % __version__
+        sys.exit()
+
+    # Configure logging
+    if args.verbose:
+        loglevel = logging.DEBUG
+    else:
+        loglevel = logging.INFO
+    FORMAT = "%(asctime)-15s %(message)s"
+    logging.basicConfig(format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S', level=loglevel)
+    
+    if not (args.kegg_dir and args.blast_file):
+        sys.stderr.write("Error: arguments kegg_dir and blast_file are required\n\n")
+        p.print_help(file=sys.stderr)
+        sys.exit(1)
+    
+    if args.blast_file.endswith(".gz"):
+        opener = gzip.open
+    else:
+        opener = open
+    
+    kannot = KEGGAnnotator(open(os.path.join(args.kegg_dir, "genes/ko/ko_genes.list")),
+                           open(os.path.join(args.kegg_dir, "genes/ko/ko_module.list")),
+                           open(os.path.join(args.kegg_dir, "genes/ko/ko_pathway.list")),
+                           open(os.path.join(args.kegg_dir, "genes/ko/ko_enzyme.list")),
+                           open(os.path.join(args.kegg_dir, "genes/ko/ko")),
+                           open(os.path.join(args.kegg_dir, "module/module")),
+                           open(os.path.join(args.kegg_dir, "pathway/pathway")),
+                           opener(args.blast_file), args.module)
+    
+    for line in kannot.make_basic_report_text():
+        print line
