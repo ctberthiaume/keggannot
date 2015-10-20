@@ -1,7 +1,8 @@
 Package to annotate proteins based on blastp against the KEGG database.
 
-## Note on KEGG version
-This software has been tested with the April 2013 version of the KEGG database. Using any other version of KEGG is not expected to work without code changes. 
+## Notes on KEGG version and support
+* This software has been tested with the April 2013 version of the KEGG database. Using any other version of KEGG is not expected to work without code changes.
+* This software is also provided as is and will most likely not receive any further updates.
 
 
 ## Install
